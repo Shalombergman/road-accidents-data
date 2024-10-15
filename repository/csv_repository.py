@@ -21,7 +21,6 @@ def init_accident_data():
     db.accidents.create_index("beat_of_occurrence")
     db.accidents.create_index("crash_date")
 
-
     for row in read_csv('data/traffic_crashes.csv'):
 
         injury = {
@@ -41,7 +40,6 @@ def init_accident_data():
             "prim_contributory_cause": row['PRIM_CONTRIBUTORY_CAUSE']
         }
         try:
-
             accidents.insert_one(accident)
         except Exception as e:
             print(f"Error inserting accident: {e}")

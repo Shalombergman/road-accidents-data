@@ -7,3 +7,4 @@ db = client['Chicago_Car_Accidents']
 accidents = db['accidents']
 injuries = db['injuries']
 
+print(accidents.find_one())

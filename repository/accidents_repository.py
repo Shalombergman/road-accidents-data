@@ -12,11 +12,6 @@ def get_sum_accidents_by_region(region):
      return sum_accidents
 #
 
-
-
-
-
-
 def get_accidents_by_region_and_date(region, start_date_str, end_date_str):
     start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
     end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
@@ -28,20 +23,7 @@ def get_accidents_by_region_and_date(region, start_date_str, end_date_str):
         }
     }))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print(get_accidents_by_region_and_date("225", "2020-05-08", "2024-05-10"))
 
 def get_accidents_grouped_by_cause(region):
     pipeline = [
@@ -69,9 +51,35 @@ def get_accidents_grouped_by_cause(region):
             }
         }
     ]
+    result = list(db.accidents.aggregate(pipeline))
+    return result
 
+
+def get_injury_statistics_by_region(region):
+    pipeline = [
+            {"$lookup": {
+                "from": "injuries",
+                "localField": "injuries_id",
+                "foreignField": "_id",
+                "as": "injury_data"
+            }},
+            {"$match": {"beat_of_occurrence": region}},
+            {"$unwind": "$injury_data"},
+            {"$group": {
+                "_id": "$beat_of_occurrence",
+                "total_injuries": {"$sum": "$injury_data.injuries_total"},
+                "fatal_injuries": {"$sum": "$injury_data.injuries_fatal"},
+                "non_fatal_injuries": {
+                    "$sum": {
+                        "$subtract": ["$injury_data.injuries_total", "$injury_data.injuries_fatal"]
+                    }
+                },
+                "accidents": {"$push": {
+                    "accident_id": "$accident_id",
+                    "crash_date": "$crash_date"
+                }}
+            }}
+        ]
 
     result = list(db.accidents.aggregate(pipeline))
-
-    return jsonify(result)
-
+    return result

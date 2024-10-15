@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 
-from repository.accidents_repository import get_sum_accidents_by_region, get_accidents_grouped_by_cause
+from repository.accidents_repository import get_sum_accidents_by_region, get_accidents_grouped_by_cause, \
+    get_injury_statistics_by_region
 from repository.csv_repository import init_accident_data
 from services.accidents_service import get_accidents_by_period
 
@@ -45,6 +46,12 @@ def group_accidents_by_cause(region):
     return get_accidents_grouped_by_cause(region)
 
 
+@accidents_blueprint.route('/accidents/injuries/<region>', methods=['GET'])
+def injury_statistics_by_region(region):
+    if not region:
+        return jsonify({"error": "Region is required"}), 400
+
+    return get_injury_statistics_by_region(region)
 
 
 
